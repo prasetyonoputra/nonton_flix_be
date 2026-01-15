@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import * as userService from "../services/user.service";
+import { parsePaginationQuery } from "../utils/pagination";
 
 export const create = async (req: Request, res: Response) => {
   try {
@@ -12,17 +13,11 @@ export const create = async (req: Request, res: Response) => {
 
 export const findAll = async (req: Request, res: Response) => {
   try {
-    const { page = "1", limit = "10", sort = "desc" } = req.query;
-
-    const users = await userService.getUsers({
-      page: Number(page),
-      limit: Number(limit),
-      sort: sort === "asc" ? "asc" : "desc",
-    });
+    const pagination = parsePaginationQuery(req);
+    const users = await userService.getUsers(pagination);
 
     res.status(200).json(users);
   } catch (error) {
-    console.error("Find users error:", error);
     res.status(500).json({
       message: "Failed to fetch users",
     });

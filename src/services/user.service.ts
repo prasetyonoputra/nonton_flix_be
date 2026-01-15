@@ -1,27 +1,19 @@
-import { PaginationParamsDto } from "../dto/pagination_params.dto";
-import { UpdateUserDto } from "../dto/user.dto";
-import prisma from "../utils/prisma";
 import bcrypt from "bcrypt";
+import { PaginationParamsDto } from "../dto/pagination.dto";
+import { CreateUserDto, UpdateUserDto } from "../dto/user.dto";
+import prisma from "../utils/prisma";
 
-export const createUser = async (data: {
-  name: string;
-  email: string;
-  password: string;
-  role?: "SUPERADMIN" | "USER" | "APPROVED";
-}) => {
+class NotFoundError extends Error {}
+class BadRequestError extends Error {}
+
+export const createUser = async (data: CreateUserDto) => {
   const existingUser = await prisma.user.findUnique({
     where: { email: data.email },
   });
+  if (existingUser) throw new BadRequestError("Email already registered");
 
-  if (existingUser) {
-    throw new Error("Email already registered");
-  }
-
-  const role = await prisma.role.findUnique({
-    where: { name: data.role || "USER" },
-  });
-
-  if (!role) throw new Error("Role not found");
+  const role = await prisma.role.findUnique({ where: { id: data.roleId } });
+  if (!role) throw new NotFoundError("Role not found");
 
   const hashedPassword = await bcrypt.hash(data.password, 10);
 
@@ -40,16 +32,20 @@ export const createUser = async (data: {
     },
   });
 
-  return { user: savedUser };
+  return savedUser;
 };
 
 export const getUsers = async (paginationParams: PaginationParamsDto) => {
   const skip = (paginationParams.page - 1) * paginationParams.limit;
+  const order = paginationParams.sort
+    ? { [paginationParams.sort]: paginationParams.dir }
+    : undefined;
 
   const [data, total] = await Promise.all([
     prisma.user.findMany({
       skip,
       take: paginationParams.limit,
+      orderBy: order,
     }),
     prisma.user.count(),
   ]);
@@ -68,20 +64,41 @@ export const getUsers = async (paginationParams: PaginationParamsDto) => {
 export const getUserById = async (id: number) => {
   const user = await prisma.user.findUnique({
     where: { id },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: { select: { name: true } },
+    },
   });
 
-  if (!user) throw new Error("User not found");
+  if (!user) throw new NotFoundError("User not found");
   return user;
 };
 
 export const updateUser = async (id: number, data: UpdateUserDto) => {
-  await getUserById(id);
+  const existingUser = await getUserById(id);
+
+  if (data.email && data.email !== existingUser.email) {
+    const emailExists = await prisma.user.findUnique({
+      where: { email: data.email },
+    });
+    if (emailExists) throw new BadRequestError("Email already registered");
+  }
+
+  if (data.roleId) {
+    const role = await prisma.role.findUnique({ where: { id: data.roleId } });
+    if (!role) throw new NotFoundError("Role not found");
+  }
 
   return prisma.user.update({
     where: { id },
-    data: {
-      title: data.title || "",
-      url: data.url || "",
+    data,
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: { select: { name: true } },
     },
   });
 };
@@ -91,5 +108,10 @@ export const deleteUser = async (id: number) => {
 
   return prisma.user.delete({
     where: { id },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+    },
   });
 };

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import * as controller from "../controllers/video.controller";
+import * as controller from "../controllers/user.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import { authorizeRole } from "../middlewares/auth_role.middleware";
 

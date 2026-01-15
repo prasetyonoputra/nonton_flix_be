@@ -1,4 +1,13 @@
 export interface UpdateUserDto {
-  title: string;
-  url: string;
+  name: string;
+  email: string;
+  password: string;
+  roleId: number;
+}
+
+export interface CreateUserDto {
+  name: string;
+  email: string;
+  password: string;
+  roleId: number;
 }
