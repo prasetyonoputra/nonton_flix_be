@@ -91,12 +91,16 @@ export const getVideoById = async (id: number) => {
 
     if (!video) throw new Error("Video not found");
 
+    const thumbnailUrl = video.thumbnail
+        ? `${process.env.BASE_URL}/${video.thumbnail.replace(/\\/g, "/")}`
+        : null;
+
     return {
         id: video.id,
         title: video.title,
         description: video.description,
         url: video.url,
-        thumbnail: video.thumbnail,
+        thumbnail: thumbnailUrl,
         createdAt: video.createdAt,
         updatedAt: video.updatedAt,
         user: video.user,
