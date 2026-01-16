@@ -82,10 +82,27 @@ export const getVideos = async (paginationParams: PaginationParamsDto) => {
 export const getVideoById = async (id: number) => {
     const video = await prisma.video.findUnique({
         where: { id },
+        include: {
+            user: { select: { id: true, name: true, email: true } },
+            categories: { select: { category: { select: { name: true } } } },
+            tags: { select: { tag: { select: { name: true } } } },
+        },
     });
 
     if (!video) throw new Error("Video not found");
-    return video;
+
+    return {
+        id: video.id,
+        title: video.title,
+        description: video.description,
+        url: video.url,
+        thumbnail: video.thumbnail,
+        createdAt: video.createdAt,
+        updatedAt: video.updatedAt,
+        user: video.user,
+        categories: video.categories.map((c) => c.category.name),
+        tags: video.tags.map((t) => t.tag.name),
+    };
 };
 
 export const updateVideo = async (
@@ -130,9 +147,30 @@ export const updateVideo = async (
 };
 
 export const deleteVideo = async (id: number) => {
-    await getVideoById(id);
+    const video = await getVideoById(id);
+    if (!video) throw new Error("Video not found");
 
-    return prisma.video.delete({
+    await prisma.videoCategory.deleteMany({
+        where: { videoId: id },
+    });
+
+    await prisma.videoTag.deleteMany({
+        where: { videoId: id },
+    });
+
+    if (video.thumbnail) {
+        const fs = await import("fs");
+        fs.unlink(video.thumbnail, (err) => {
+            if (err) console.warn("Failed to delete thumbnail:", err.message);
+        });
+    }
+
+    const deleted = await prisma.video.delete({
         where: { id },
     });
+
+    return {
+        message: "Video deleted successfully",
+        video: deleted,
+    };
 };

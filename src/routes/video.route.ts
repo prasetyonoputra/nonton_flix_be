@@ -30,8 +30,8 @@ router.delete(
     controller.remove
 );
 
-// PUBLIC
-router.get("/", controller.findAll);
-router.get("/:id", controller.findOne);
+router.get("/", authMiddleware, controller.findAll);
+
+router.get("/:id", authMiddleware, controller.findOne);
 
 export default router;
