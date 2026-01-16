@@ -1,23 +1,10 @@
-// Prisma schema for db_pronontonflix
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
-  url = env("DATABASE_URL")
-}
-
-model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String
-  roleId    Int
-  role      Role     @relation(fields: [roleId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  url      = env("DATABASE_URL")
 }
 
 model Role {
@@ -26,10 +13,101 @@ model Role {
   users User[]
 }
 
+model User {
+  id             Int      @id @default(autoincrement())
+  name           String
+  email          String   @unique
+  password       String
+  roleId         Int
+  role           Role     @relation(fields: [roleId], references: [id])
+  profile        Profile?
+  points         Point[]
+  rewards        Reward[]
+  notifications  Notification[]
+  accountSetting AccountSetting?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  friendsSent     Friend[] @relation("UserFriends")
+  friendsReceived Friend[] @relation("FriendOf")
+}
+
+
+model Profile {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  user      User     @relation(fields: [userId], references: [id])
+  bio       String?
+  avatarUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Friend {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  friendId  Int
+  status    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User @relation("UserFriends", fields: [userId], references: [id])
+  friend    User @relation("FriendOf", fields: [friendId], references: [id])
+
+  @@unique([userId, friendId])
+}
+
 model Video {
   id        Int      @id @default(autoincrement())
   title     String
   url       String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Point {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  value     Int
+  reason    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Reward {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  title       String
+  description String?
+  redeemed    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model AccountSetting {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  theme     String?
+  language  String?
+  privacy   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
 }

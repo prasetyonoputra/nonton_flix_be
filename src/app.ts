@@ -15,4 +15,7 @@ app.use("/api/users", userRoutes);
 import videoRoute from "./routes/video.route";
 app.use("/api/videos", videoRoute);
 
+import profileRoute from "./routes/profile.route";
+app.use("/api/profiles", profileRoute);
+
 export default app;

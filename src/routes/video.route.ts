@@ -6,24 +6,24 @@ import { authorizeRole } from "../middlewares/auth_role.middleware";
 const router = Router();
 
 router.post(
-  "/",
-  authMiddleware,
-  authorizeRole("SUPERADMIN"),
-  controller.create
+    "/",
+    authMiddleware,
+    authorizeRole("SUPERADMIN"),
+    controller.create
 );
 
 router.put(
-  "/:id",
-  authMiddleware,
-  authorizeRole("SUPERADMIN"),
-  controller.update
+    "/:id",
+    authMiddleware,
+    authorizeRole("SUPERADMIN"),
+    controller.update
 );
 
 router.delete(
-  "/:id",
-  authMiddleware,
-  authorizeRole("SUPERADMIN"),
-  controller.remove
+    "/:id",
+    authMiddleware,
+    authorizeRole("SUPERADMIN"),
+    controller.remove
 );
 
 // PUBLIC
