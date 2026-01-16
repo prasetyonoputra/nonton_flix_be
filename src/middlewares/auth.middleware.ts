@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
 export interface AuthRequest extends Request {
@@ -8,6 +8,10 @@ export interface AuthRequest extends Request {
         role: string;
         roleId: number;
     };
+    file?: Express.Multer.File;
+    files?:
+        | { [fieldname: string]: Express.Multer.File[] }
+        | Express.Multer.File[];
 }
 
 export const authMiddleware = (

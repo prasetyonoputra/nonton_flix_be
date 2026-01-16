@@ -1,11 +1,29 @@
 import { Request, Response } from "express";
 import * as videoService from "../services/video.service";
 import { parsePaginationQuery } from "../utils/pagination";
+import { AuthRequest } from "../middlewares/auth.middleware";
 
-export const create = async (req: Request, res: Response) => {
+export const create = async (req: AuthRequest, res: Response) => {
     try {
-        const video = await videoService.createVideo(req.body);
-        res.status(201).json(video);
+        const userId = Number(req.user?.id);
+        const { title, description, url } = req.body;
+
+        const thumbnail = req.file?.path;
+        const categoryIds = req.body.categoryIds
+            ? JSON.parse(req.body.categoryIds)
+            : [];
+        const tagIds = req.body.tagIds ? JSON.parse(req.body.tagIds) : [];
+
+        const video = await videoService.createVideo(userId, {
+            title,
+            description,
+            url,
+            thumbnail,
+            categoryIds,
+            tagIds,
+        });
+
+        res.json(video);
     } catch (err: any) {
         res.status(400).json({ message: err.message });
     }
@@ -26,15 +44,28 @@ export const findOne = async (req: Request, res: Response) => {
     }
 };
 
-export const update = async (req: Request, res: Response) => {
+export const update = async (req: AuthRequest, res: Response) => {
     try {
-        const video = await videoService.updateVideo(
-            Number(req.params.id),
-            req.body
-        );
-        res.json(video);
+        const userId = Number(req.user?.id);
+        const videoId = Number(req.params.videoId);
+        const { title, description } = req.body;
+        const thumbnail = req.file?.path;
+        const categoryIds = req.body.categoryIds
+            ? JSON.parse(req.body.categoryIds)
+            : [];
+        const tagIds = req.body.tagIds ? JSON.parse(req.body.tagIds) : [];
+
+        const updatedVideo = await videoService.updateVideo(userId, videoId, {
+            title,
+            description,
+            categoryIds,
+            tagIds,
+            thumbnail,
+        });
+
+        res.json(updatedVideo);
     } catch (err: any) {
-        res.status(404).json({ message: err.message });
+        res.status(400).json({ message: err.message });
     }
 };
 
