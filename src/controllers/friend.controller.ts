@@ -18,7 +18,7 @@ export const sendFriendRequest = async (req: AuthRequest, res: Response) => {
 export const acceptFriendRequest = async (req: AuthRequest, res: Response) => {
     try {
         const userId = Number(req.user?.id);
-        const friendId = Number(req.body.userId);
+        const friendId = Number(req.params.friendId);
         const result = await friendService.acceptFriendRequest(
             userId,
             friendId
@@ -32,7 +32,7 @@ export const acceptFriendRequest = async (req: AuthRequest, res: Response) => {
 export const rejectFriendRequest = async (req: AuthRequest, res: Response) => {
     try {
         const userId = Number(req.user?.id);
-        const friendId = Number(req.body.userId);
+        const friendId = Number(req.params.friendId);
         await friendService.rejectFriendRequest(userId, friendId);
         res.json({ message: "Friend request rejected" });
     } catch (error: any) {

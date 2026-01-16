@@ -10,12 +10,12 @@ router.post(
     friendController.sendFriendRequest
 );
 router.put(
-    "/friend-request/:userId/accept",
+    "/friend-request/:friendId/accept",
     authMiddleware,
     friendController.acceptFriendRequest
 );
 router.delete(
-    "/friend-request/:userId/reject",
+    "/friend-request/:friendId/reject",
     authMiddleware,
     friendController.rejectFriendRequest
 );

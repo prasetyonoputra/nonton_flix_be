@@ -45,7 +45,7 @@ export const sendFriendRequest = async (userId: number, friendId: number) => {
     });
 };
 
-export const acceptFriendRequest = async (userId: number, friendId: number) => {
+export const acceptFriendRequest = async (friendId: number, userId: number) => {
     const existing = await prisma.friend.findUnique({
         where: { userId_friendId: { userId, friendId } },
     });
@@ -57,7 +57,7 @@ export const acceptFriendRequest = async (userId: number, friendId: number) => {
     });
 };
 
-export const rejectFriendRequest = async (userId: number, friendId: number) => {
+export const rejectFriendRequest = async (friendId: number, userId: number) => {
     const existing = await prisma.friend.findUnique({
         where: { userId_friendId: { userId, friendId } },
     });
