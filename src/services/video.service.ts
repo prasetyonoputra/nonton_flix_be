@@ -40,33 +40,51 @@ export const getVideos = async (paginationParams: PaginationParamsDto) => {
 
     const orderBy = { [sortField]: sortDir };
 
-    const [data, total] = await Promise.all([
+    const [videos, total] = await Promise.all([
         prisma.video.findMany({
             skip,
             take: paginationParams.limit,
-            orderBy: orderBy,
+            orderBy,
             include: {
                 user: { select: { id: true, name: true, email: true } },
                 categories: {
                     select: { category: { select: { name: true } } },
                 },
                 tags: { select: { tag: { select: { name: true } } } },
+                ratings: true,
             },
         }),
         prisma.video.count(),
     ]);
 
-    const formatted = data.map((v: any) => ({
-        id: v.id,
-        title: v.title,
-        description: v.description,
-        url: v.url,
-        thumbnail: v.thumbnail,
-        createdAt: v.createdAt,
-        user: v.user,
-        categories: v.categories.map((c: any) => c.category.name),
-        tags: v.tags.map((t: any) => t.tag.name),
-    }));
+    const formatted = videos.map((v) => {
+        const thumbnailUrl = v.thumbnail
+            ? `${process.env.BASE_URL}/${v.thumbnail.replace(/\\/g, "/")}`
+            : null;
+
+        const ratingCount = v.ratings.length;
+        const averageRating =
+            ratingCount > 0
+                ? v.ratings.reduce((sum, r) => sum + r.value, 0) / ratingCount
+                : null;
+
+        return {
+            id: v.id,
+            title: v.title,
+            description: v.description,
+            url: v.url,
+            thumbnail: thumbnailUrl,
+            createdAt: v.createdAt,
+            updatedAt: v.updatedAt,
+            user: v.user,
+            categories: v.categories.map((c) => c.category.name),
+            tags: v.tags.map((t) => t.tag.name),
+            rating: {
+                average: averageRating,
+                count: ratingCount,
+            },
+        };
+    });
 
     return {
         data: formatted,
@@ -86,6 +104,7 @@ export const getVideoById = async (id: number) => {
             user: { select: { id: true, name: true, email: true } },
             categories: { select: { category: { select: { name: true } } } },
             tags: { select: { tag: { select: { name: true } } } },
+            ratings: true,
         },
     });
 
@@ -94,6 +113,10 @@ export const getVideoById = async (id: number) => {
     const thumbnailUrl = video.thumbnail
         ? `${process.env.BASE_URL}/${video.thumbnail.replace(/\\/g, "/")}`
         : null;
+
+    const totalRating = video.ratings.reduce((sum, r) => sum + r.value, 0);
+    const ratingCount = video.ratings.length;
+    const averageRating = ratingCount > 0 ? totalRating / ratingCount : null;
 
     return {
         id: video.id,
@@ -106,6 +129,10 @@ export const getVideoById = async (id: number) => {
         user: video.user,
         categories: video.categories.map((c) => c.category.name),
         tags: video.tags.map((t) => t.tag.name),
+        rating: {
+            average: averageRating,
+            count: ratingCount,
+        },
     };
 };
 

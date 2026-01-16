@@ -14,36 +14,35 @@ model Role {
 }
 
 model User {
-  id             Int             @id @default(autoincrement())
-  name           String
-  email          String          @unique
-  password       String
-  roleId         Int
-  role           Role            @relation(fields: [roleId], references: [id])
-  profile        Profile?
-  points         Point[]
-  rewards        Reward[]
-  notifications  Notification[]
-  accountSetting AccountSetting?
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-
-  friendsSent     Friend[]   @relation("UserFriends")
-  friendsReceived Friend[]   @relation("FriendOf")
-  Video           Video[]
+  id              Int             @id @default(autoincrement())
+  name            String
+  email           String          @unique
+  password        String
+  roleId          Int
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  accountSetting  AccountSetting?
   Comment         Comment[]
-  Rating          Rating[]
+  friendsReceived Friend[]        @relation("FriendOf")
+  friendsSent     Friend[]        @relation("UserFriends")
+  notifications   Notification[]
   Playlist        Playlist[]
+  points          Point[]
+  profile         Profile?
+  Rating          Rating[]
+  rewards         Reward[]
+  role            Role            @relation(fields: [roleId], references: [id])
+  Video           Video[]
 }
 
 model Profile {
   id        Int      @id @default(autoincrement())
   userId    Int      @unique
-  user      User     @relation(fields: [userId], references: [id])
   bio       String?
   avatarUrl String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Friend {
@@ -53,9 +52,8 @@ model Friend {
   status    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  user   User @relation("UserFriends", fields: [userId], references: [id])
-  friend User @relation("FriendOf", fields: [friendId], references: [id])
+  friend    User     @relation("FriendOf", fields: [friendId], references: [id])
+  user      User     @relation("UserFriends", fields: [userId], references: [id])
 
   @@unique([userId, friendId])
 }
@@ -67,8 +65,7 @@ model Point {
   reason    String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Reward {
@@ -79,8 +76,7 @@ model Reward {
   redeemed    Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
 }
 
 model Notification {
@@ -91,8 +87,7 @@ model Notification {
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model AccountSetting {
@@ -103,25 +98,24 @@ model AccountSetting {
   privacy   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Video {
   id          Int             @id @default(autoincrement())
   title       String
+  url         String
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
   description String?
-  url         String // path atau URL file video
-  thumbnail   String? // optional thumbnail image
-  userId      Int // uploader
+  thumbnail   String?
+  userId      Int
+  comments    Comment[]
+  playlists   PlaylistVideo[]
+  ratings     Rating[]
   user        User            @relation(fields: [userId], references: [id])
   categories  VideoCategory[]
   tags        VideoTag[]
-  comments    Comment[]
-  ratings     Rating[]
-  playlists   PlaylistItem[]
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
 }
 
 model Category {
@@ -134,8 +128,8 @@ model VideoCategory {
   id         Int      @id @default(autoincrement())
   videoId    Int
   categoryId Int
-  video      Video    @relation(fields: [videoId], references: [id])
   category   Category @relation(fields: [categoryId], references: [id])
+  video      Video    @relation(fields: [videoId], references: [id])
 
   @@unique([videoId, categoryId])
 }
@@ -150,56 +144,59 @@ model VideoTag {
   id      Int   @id @default(autoincrement())
   videoId Int
   tagId   Int
-  video   Video @relation(fields: [videoId], references: [id])
   tag     Tag   @relation(fields: [tagId], references: [id])
+  video   Video @relation(fields: [videoId], references: [id])
 
   @@unique([videoId, tagId])
 }
 
 model Comment {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   videoId   Int
   userId    Int
   content   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  video Video @relation(fields: [videoId], references: [id])
-  user  User  @relation(fields: [userId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  parentId  Int?
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies   Comment[] @relation("CommentReplies")
+  user      User      @relation(fields: [userId], references: [id])
+  video     Video     @relation(fields: [videoId], references: [id])
 }
 
 model Rating {
   id        Int      @id @default(autoincrement())
   videoId   Int
   userId    Int
-  value     Int // 1-5
+  value     Int
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  video     Video    @relation(fields: [videoId], references: [id])
 
-  video Video @relation(fields: [videoId], references: [id])
-  user  User  @relation(fields: [userId], references: [id])
-
-  @@unique([videoId, userId]) // user hanya boleh rate sekali
+  @@unique([userId, videoId])
 }
 
 model Playlist {
-  id        Int            @id @default(autoincrement())
-  userId    Int
-  name      String
-  videos    PlaylistItem[]
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-
-  user User @relation(fields: [userId], references: [id])
+  id          Int             @id @default(autoincrement())
+  userId      Int
+  name        String
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  description String?
+  isPublic    Boolean         @default(true)
+  user        User            @relation(fields: [userId], references: [id])
+  videos      PlaylistVideo[]
 }
 
-model PlaylistItem {
+model PlaylistVideo {
   id         Int      @id @default(autoincrement())
   playlistId Int
   videoId    Int
-  addedAt    DateTime @default(now())
-
-  playlist Playlist @relation(fields: [playlistId], references: [id])
-  video    Video    @relation(fields: [videoId], references: [id])
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+  playlist   Playlist @relation(fields: [playlistId], references: [id])
+  video      Video    @relation(fields: [videoId], references: [id])
 
   @@unique([playlistId, videoId])
 }
