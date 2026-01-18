@@ -8,6 +8,6 @@ router.post("/ads", authMiddleware, controller.createAd);
 router.post("/premium/subscribe", authMiddleware, controller.subscribePremium);
 router.post("/donate", authMiddleware, controller.donate);
 router.post("/sell", authMiddleware, controller.sellContent);
-router.get("/revenue/:userId", authMiddleware, controller.getRevenueStats);
+router.get("/revenue", authMiddleware, controller.getRevenueStats);
 
 export default router;

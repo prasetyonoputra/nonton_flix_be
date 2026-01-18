@@ -52,9 +52,10 @@ export const donate = async (req: AuthRequest, res: Response) => {
     }
 };
 
-export const sellContent = async (req: Request, res: Response) => {
+export const sellContent = async (req: AuthRequest, res: Response) => {
     try {
-        const { contentId, buyerId, price } = req.body;
+        const { contentId, price } = req.body;
+        const buyerId = Number(req.user?.id);
         const sale = await service.sellContent(contentId, buyerId, price);
 
         return responseSuccess(res, sale);
