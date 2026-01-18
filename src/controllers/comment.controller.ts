@@ -2,6 +2,10 @@ import { Request, Response } from "express";
 import { AuthRequest } from "../middlewares/auth.middleware";
 import * as commentService from "../services/comment.service";
 import { parsePaginationQuery } from "../utils/pagination";
+import {
+    responseError,
+    responseSuccess,
+} from "../middlewares/response.middleware";
 
 export const createComment = async (req: AuthRequest, res: Response) => {
     try {
@@ -10,11 +14,12 @@ export const createComment = async (req: AuthRequest, res: Response) => {
             req.user!.id,
             videoId,
             content,
-            parentId
+            parentId,
         );
-        res.json(comment);
+
+        return responseSuccess(res, comment);
     } catch (err: any) {
-        res.status(400).json({ message: err.message });
+        return responseError(res, err.message, 400, err);
     }
 };
 
@@ -23,9 +28,10 @@ export const listComments = async (req: Request, res: Response) => {
         const videoId = Number(req.params.videoId);
         const pagination = parsePaginationQuery(req);
         const comments = await commentService.listComments(videoId, pagination);
-        res.json(comments);
+
+        return responseSuccess(res, comments);
     } catch (err: any) {
-        res.status(400).json({ message: err.message });
+        return responseError(res, err.message, 400, err);
     }
 };
 
@@ -33,8 +39,9 @@ export const deleteComment = async (req: AuthRequest, res: Response) => {
     try {
         const id = Number(req.params.id);
         const deleted = await commentService.deleteComment(id, req.user!.id);
-        res.json({ message: "Deleted", comment: deleted });
+
+        return responseSuccess(res, deleted);
     } catch (err: any) {
-        res.status(400).json({ message: err.message });
+        return responseError(res, err.message, 400, err);
     }
 };

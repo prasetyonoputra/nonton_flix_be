@@ -1,34 +1,34 @@
 import { Request, Response } from "express";
 import * as authService from "../services/auth.service";
 import { AuthRequest } from "../middlewares/auth.middleware";
+import {
+    responseError,
+    responseSuccess,
+} from "../middlewares/response.middleware";
 
 export const register = async (req: Request, res: Response) => {
     try {
         const user = await authService.register(req.body);
-        res.status(201).json(user);
+        return responseSuccess(res, user);
     } catch (err: any) {
-        res.status(400).json({ message: err.message });
+        return responseError(res, err.message, 400, err);
     }
 };
 
 export const login = async (req: Request, res: Response) => {
     try {
         const result = await authService.login(req.body);
-        res.json(result);
+        return responseSuccess(res, result);
     } catch (err: any) {
-        res.status(401).json({ message: err.message });
+        return responseError(res, err.message, 400, err);
     }
 };
 
 export const getProfile = async (req: AuthRequest, res: Response) => {
     try {
-        if (!req.user) {
-            return res.status(401).json({ message: "Unauthorized" });
-        }
-
-        const profile = await authService.getProfile(req.user.id);
-        res.json(profile);
+        const profile = await authService.getProfile(Number(req.user?.id));
+        return responseSuccess(res, profile);
     } catch (err: any) {
-        res.status(404).json({ message: err.message });
+        return responseError(res, err.message, 400, err);
     }
 };

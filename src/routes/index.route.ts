@@ -7,6 +7,7 @@ import friendRoute from "./friend.routes";
 import ratingRoute from "./rating.route";
 import commentRoute from "./comment.route";
 import playlistRoute from "./playlist.route";
+import monetizationRoute from "./monetization.route";
 
 export const registerRoutes = (app: Application) => {
     app.use("/api/auth", authRoutes);
@@ -17,4 +18,5 @@ export const registerRoutes = (app: Application) => {
     app.use("/api/ratings", ratingRoute);
     app.use("/api/comments", commentRoute);
     app.use("/api/playlists", playlistRoute);
+    app.use("/api/monetizations", monetizationRoute);
 };

@@ -1,6 +1,10 @@
 import { Request, Response } from "express";
 import * as profileService from "../services/profile.service";
 import { UpdateProfileDto } from "../dto/profile.dto";
+import {
+    responseError,
+    responseSuccess,
+} from "../middlewares/response.middleware";
 
 export const update = async (req: Request, res: Response) => {
     try {
@@ -8,19 +12,21 @@ export const update = async (req: Request, res: Response) => {
 
         const user = await profileService.updateProfile(
             Number(req.params.id),
-            payload
+            payload,
         );
-        res.json(user);
+
+        return responseSuccess(res, user);
     } catch (err: any) {
-        res.status(404).json({ message: err.message });
+        return responseError(res, err.message, 400, err);
     }
 };
 
 export const findOne = async (req: Request, res: Response) => {
     try {
         const user = await profileService.getUserProfile(Number(req.params.id));
-        res.json(user);
+
+        return responseSuccess(res, user);
     } catch (err: any) {
-        res.status(404).json({ message: err.message });
+        return responseError(res, err.message, 400, err);
     }
 };

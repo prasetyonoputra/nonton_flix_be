@@ -2,6 +2,10 @@ import { Request, Response } from "express";
 import * as friendService from "../services/friend.service";
 import { AuthRequest } from "../middlewares/auth.middleware";
 import { parsePaginationQuery } from "../utils/pagination";
+import {
+    responseError,
+    responseSuccess,
+} from "../middlewares/response.middleware";
 
 export const sendFriendRequest = async (req: AuthRequest, res: Response) => {
     try {
@@ -9,9 +13,10 @@ export const sendFriendRequest = async (req: AuthRequest, res: Response) => {
         const friendId = Number(req.body.friendId);
 
         const result = await friendService.sendFriendRequest(userId, friendId);
-        res.json(result);
-    } catch (error: any) {
-        res.status(400).json({ message: error.message });
+
+        return responseSuccess(res, result);
+    } catch (err: any) {
+        return responseError(res, err.message, 400, err);
     }
 };
 
@@ -21,11 +26,12 @@ export const acceptFriendRequest = async (req: AuthRequest, res: Response) => {
         const friendId = Number(req.params.friendId);
         const result = await friendService.acceptFriendRequest(
             userId,
-            friendId
+            friendId,
         );
-        res.json(result);
-    } catch (error: any) {
-        res.status(400).json({ message: error.message });
+
+        return responseSuccess(res, result);
+    } catch (err: any) {
+        return responseError(res, err.message, 400, err);
     }
 };
 
@@ -34,9 +40,10 @@ export const rejectFriendRequest = async (req: AuthRequest, res: Response) => {
         const userId = Number(req.user?.id);
         const friendId = Number(req.params.friendId);
         await friendService.rejectFriendRequest(userId, friendId);
-        res.json({ message: "Friend request rejected" });
-    } catch (error: any) {
-        res.status(400).json({ message: error.message });
+
+        return responseSuccess(res, null, "Friend request rejected");
+    } catch (err: any) {
+        return responseError(res, err.message, 400, err);
     }
 };
 
@@ -45,8 +52,9 @@ export const listFriends = async (req: AuthRequest, res: Response) => {
         const pagination = parsePaginationQuery(req);
         const userId = Number(req.user?.id);
         const result = await friendService.listFriends(userId, pagination);
-        res.json(result);
-    } catch (error: any) {
-        res.status(400).json({ message: error.message });
+
+        return responseSuccess(res, result);
+    } catch (err: any) {
+        return responseError(res, err.message, 400, err);
     }
 };

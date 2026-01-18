@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { AuthRequest } from "../middlewares/auth.middleware";
 import * as ratingService from "../services/rating.service";
+import { responseError } from "../middlewares/response.middleware";
 
 export const rateVideo = async (req: AuthRequest, res: Response) => {
     try {
@@ -15,12 +16,12 @@ export const rateVideo = async (req: AuthRequest, res: Response) => {
         const rating = await ratingService.addOrUpdateRating(
             req.user!.id,
             videoId,
-            value
+            value,
         );
 
         res.json(rating);
     } catch (err: any) {
-        res.status(400).json({ message: err.message });
+        return responseError(res, err.message, 400, err);
     }
 };
 
@@ -30,6 +31,6 @@ export const getRating = async (req: Request, res: Response) => {
         const rating = await ratingService.getVideoRating(videoId);
         res.json(rating);
     } catch (err: any) {
-        res.status(400).json({ message: err.message });
+        return responseError(res, err.message, 400, err);
     }
 };

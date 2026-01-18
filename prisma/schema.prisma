@@ -14,25 +14,29 @@ model Role {
 }
 
 model User {
-  id              Int             @id @default(autoincrement())
-  name            String
-  email           String          @unique
-  password        String
-  roleId          Int
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  accountSetting  AccountSetting?
-  Comment         Comment[]
-  friendsReceived Friend[]        @relation("FriendOf")
-  friendsSent     Friend[]        @relation("UserFriends")
-  notifications   Notification[]
-  Playlist        Playlist[]
-  points          Point[]
-  profile         Profile?
-  Rating          Rating[]
-  rewards         Reward[]
-  role            Role            @relation(fields: [roleId], references: [id])
-  Video           Video[]
+  id                  Int                   @id @default(autoincrement())
+  name                String
+  email               String                @unique
+  password            String
+  roleId              Int
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  accountSetting      AccountSetting?
+  Comment             Comment[]
+  ContentSale         ContentSale[]
+  donationsGiven      Donation[]            @relation("DonationFrom")
+  donationsReceived   Donation[]            @relation("DonationTo")
+  friendsReceived     Friend[]              @relation("FriendOf")
+  friendsSent         Friend[]              @relation("UserFriends")
+  notifications       Notification[]
+  Playlist            Playlist[]
+  points              Point[]
+  PremiumSubscription PremiumSubscription[]
+  profile             Profile?
+  Rating              Rating[]
+  rewards             Reward[]
+  role                Role                  @relation(fields: [roleId], references: [id])
+  Video               Video[]
 }
 
 model Profile {
@@ -110,7 +114,10 @@ model Video {
   description String?
   thumbnail   String?
   userId      Int
+  AdVideo     AdVideo[]
   comments    Comment[]
+  ContentSale ContentSale[]
+  Donation    Donation[]
   playlists   PlaylistVideo[]
   ratings     Rating[]
   user        User            @relation(fields: [userId], references: [id])
@@ -199,4 +206,51 @@ model PlaylistVideo {
   video      Video    @relation(fields: [videoId], references: [id])
 
   @@unique([playlistId, videoId])
+}
+
+model AdVideo {
+  id        Int      @id @default(autoincrement())
+  videoId   Int
+  title     String
+  revenue   Float    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  video     Video    @relation(fields: [videoId], references: [id])
+}
+
+model PremiumSubscription {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  startDate DateTime @default(now())
+  endDate   DateTime
+  price     Float
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Donation {
+  id         Int      @id @default(autoincrement())
+  fromUserId Int
+  toUserId   Int
+  videoId    Int?
+  amount     Float
+  message    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  fromUser   User     @relation("DonationFrom", fields: [fromUserId], references: [id])
+  toUser     User     @relation("DonationTo", fields: [toUserId], references: [id])
+  video      Video?   @relation(fields: [videoId], references: [id])
+}
+
+model ContentSale {
+  id        Int      @id @default(autoincrement())
+  contentId Int
+  buyerId   Int
+  price     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  buyer     User     @relation(fields: [buyerId], references: [id])
+  video     Video    @relation(fields: [contentId], references: [id])
 }

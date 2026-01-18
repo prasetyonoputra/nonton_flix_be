@@ -2,6 +2,10 @@ import { Request, Response } from "express";
 import * as videoService from "../services/video.service";
 import { parsePaginationQuery } from "../utils/pagination";
 import { AuthRequest } from "../middlewares/auth.middleware";
+import {
+    responseError,
+    responseSuccess,
+} from "../middlewares/response.middleware";
 
 export const create = async (req: AuthRequest, res: Response) => {
     try {
@@ -23,24 +27,26 @@ export const create = async (req: AuthRequest, res: Response) => {
             tagIds,
         });
 
-        res.json(video);
+        return responseSuccess(res, video);
     } catch (err: any) {
-        res.status(400).json({ message: err.message });
+        return responseError(res, err.message, 400, err);
     }
 };
 
 export const findAll = async (req: Request, res: Response) => {
     const pagination = parsePaginationQuery(req);
     const videos = await videoService.getVideos(pagination);
-    res.json(videos);
+
+    return responseSuccess(res, videos);
 };
 
 export const findOne = async (req: Request, res: Response) => {
     try {
         const video = await videoService.getVideoById(Number(req.params.id));
-        res.json(video);
+
+        return responseSuccess(res, video);
     } catch (err: any) {
-        res.status(404).json({ message: err.message });
+        return responseError(res, err.message, 400, err);
     }
 };
 
@@ -63,17 +69,18 @@ export const update = async (req: AuthRequest, res: Response) => {
             thumbnail,
         });
 
-        res.json(updatedVideo);
+        return responseSuccess(res, updatedVideo);
     } catch (err: any) {
-        res.status(400).json({ message: err.message });
+        return responseError(res, err.message, 400, err);
     }
 };
 
 export const remove = async (req: Request, res: Response) => {
     try {
         await videoService.deleteVideo(Number(req.params.id));
-        res.json({ message: "Video deleted successfully" });
+
+        return responseSuccess(res, null);
     } catch (err: any) {
-        res.status(404).json({ message: err.message });
+        return responseError(res, err.message, 400, err);
     }
 };
