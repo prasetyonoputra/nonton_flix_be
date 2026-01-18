@@ -19,7 +19,7 @@ export const createComment = async (req: AuthRequest, res: Response) => {
 
         return responseSuccess(res, comment);
     } catch (err: any) {
-        return responseError(res, err.message, 400, err);
+        return responseError(res, err);
     }
 };
 
@@ -31,7 +31,7 @@ export const listComments = async (req: Request, res: Response) => {
 
         return responseSuccess(res, comments);
     } catch (err: any) {
-        return responseError(res, err.message, 400, err);
+        return responseError(res, err);
     }
 };
 
@@ -42,6 +42,6 @@ export const deleteComment = async (req: AuthRequest, res: Response) => {
 
         return responseSuccess(res, deleted);
     } catch (err: any) {
-        return responseError(res, err.message, 400, err);
+        return responseError(res, err);
     }
 };

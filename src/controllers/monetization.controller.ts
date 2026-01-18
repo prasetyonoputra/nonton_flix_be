@@ -13,7 +13,7 @@ export const createAd = async (req: Request, res: Response) => {
 
         return responseSuccess(res, ad);
     } catch (err: any) {
-        return responseError(res, err.message, 400, err);
+        return responseError(res, err);
     }
 };
 
@@ -30,7 +30,7 @@ export const subscribePremium = async (req: AuthRequest, res: Response) => {
 
         return responseSuccess(res, subscription);
     } catch (err: any) {
-        return responseError(res, err.message, 400, err);
+        return responseError(res, err);
     }
 };
 
@@ -48,7 +48,7 @@ export const donate = async (req: AuthRequest, res: Response) => {
 
         return responseSuccess(res, donation);
     } catch (err: any) {
-        return responseError(res, err.message, 400, err);
+        return responseError(res, err);
     }
 };
 
@@ -59,7 +59,7 @@ export const sellContent = async (req: Request, res: Response) => {
 
         return responseSuccess(res, sale);
     } catch (err: any) {
-        return responseError(res, err.message, 400, err);
+        return responseError(res, err);
     }
 };
 
@@ -70,6 +70,6 @@ export const getRevenueStats = async (req: AuthRequest, res: Response) => {
 
         return responseSuccess(res, stats);
     } catch (err: any) {
-        return responseError(res, err.message, 400, err);
+        return responseError(res, err);
     }
 };

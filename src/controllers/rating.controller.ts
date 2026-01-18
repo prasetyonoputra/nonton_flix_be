@@ -21,7 +21,7 @@ export const rateVideo = async (req: AuthRequest, res: Response) => {
 
         res.json(rating);
     } catch (err: any) {
-        return responseError(res, err.message, 400, err);
+        return responseError(res, err);
     }
 };
 
@@ -31,6 +31,6 @@ export const getRating = async (req: Request, res: Response) => {
         const rating = await ratingService.getVideoRating(videoId);
         res.json(rating);
     } catch (err: any) {
-        return responseError(res, err.message, 400, err);
+        return responseError(res, err);
     }
 };

@@ -11,7 +11,7 @@ export const register = async (req: Request, res: Response) => {
         const user = await authService.register(req.body);
         return responseSuccess(res, user);
     } catch (err: any) {
-        return responseError(res, err.message, 400, err);
+        return responseError(res, err);
     }
 };
 
@@ -20,7 +20,7 @@ export const login = async (req: Request, res: Response) => {
         const result = await authService.login(req.body);
         return responseSuccess(res, result);
     } catch (err: any) {
-        return responseError(res, err.message, 400, err);
+        return responseError(res, err);
     }
 };
 
@@ -29,6 +29,6 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
         const profile = await authService.getProfile(Number(req.user?.id));
         return responseSuccess(res, profile);
     } catch (err: any) {
-        return responseError(res, err.message, 400, err);
+        return responseError(res, err);
     }
 };

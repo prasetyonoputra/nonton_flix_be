@@ -1,4 +1,5 @@
 import { Response } from "express";
+import { normalizeError } from "../helpers/error.helper";
 
 export interface ApiResponse<T = any> {
     success: boolean;
@@ -22,17 +23,14 @@ export const responseSuccess = <T>(
     return res.status(statusCode).json(response);
 };
 
-export const responseError = (
-    res: Response,
-    message = "Internal Server Error",
-    statusCode = 500,
-    error?: any,
-) => {
+export const responseError = (res: Response, err: any) => {
+    const normalized = normalizeError(err);
+
     const response: ApiResponse = {
         success: false,
-        message,
-        error,
+        message: normalized.message,
+        error: normalized.error,
     };
 
-    return res.status(statusCode).json(response);
+    return res.status(normalized.statusCode).json(response);
 };

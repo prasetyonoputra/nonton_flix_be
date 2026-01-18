@@ -12,7 +12,7 @@ export const create = async (req: Request, res: Response) => {
 
         return responseSuccess(res, user);
     } catch (err: any) {
-        return responseError(res, err.message, 400, err);
+        return responseError(res, err);
     }
 };
 
@@ -23,7 +23,7 @@ export const findAll = async (req: Request, res: Response) => {
 
         return responseSuccess(res, users);
     } catch (err: any) {
-        return responseError(res, err.message, 400, err);
+        return responseError(res, err);
     }
 };
 
@@ -33,7 +33,7 @@ export const findOne = async (req: Request, res: Response) => {
 
         return responseSuccess(res, user);
     } catch (err: any) {
-        return responseError(res, err.message, 400, err);
+        return responseError(res, err);
     }
 };
 
@@ -46,7 +46,7 @@ export const update = async (req: Request, res: Response) => {
 
         return responseSuccess(res, user);
     } catch (err: any) {
-        return responseError(res, err.message, 400, err);
+        return responseError(res, err);
     }
 };
 
@@ -56,6 +56,6 @@ export const remove = async (req: Request, res: Response) => {
 
         return responseSuccess(res, null);
     } catch (err: any) {
-        return responseError(res, err.message, 400, err);
+        return responseError(res, err);
     }
 };

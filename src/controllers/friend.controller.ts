@@ -16,7 +16,7 @@ export const sendFriendRequest = async (req: AuthRequest, res: Response) => {
 
         return responseSuccess(res, result);
     } catch (err: any) {
-        return responseError(res, err.message, 400, err);
+        return responseError(res, err);
     }
 };
 
@@ -31,7 +31,7 @@ export const acceptFriendRequest = async (req: AuthRequest, res: Response) => {
 
         return responseSuccess(res, result);
     } catch (err: any) {
-        return responseError(res, err.message, 400, err);
+        return responseError(res, err);
     }
 };
 
@@ -43,7 +43,7 @@ export const rejectFriendRequest = async (req: AuthRequest, res: Response) => {
 
         return responseSuccess(res, null, "Friend request rejected");
     } catch (err: any) {
-        return responseError(res, err.message, 400, err);
+        return responseError(res, err);
     }
 };
 
@@ -55,6 +55,6 @@ export const listFriends = async (req: AuthRequest, res: Response) => {
 
         return responseSuccess(res, result);
     } catch (err: any) {
-        return responseError(res, err.message, 400, err);
+        return responseError(res, err);
     }
 };

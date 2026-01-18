@@ -18,7 +18,7 @@ export const createPlaylist = async (req: AuthRequest, res: Response) => {
 
         return responseSuccess(res, playlist);
     } catch (err: any) {
-        return responseError(res, err.message, 400, err);
+        return responseError(res, err);
     }
 };
 
@@ -33,7 +33,7 @@ export const addVideo = async (req: AuthRequest, res: Response) => {
 
         return responseSuccess(res, result);
     } catch (err: any) {
-        return responseError(res, err.message, 400, err);
+        return responseError(res, err);
     }
 };
 
@@ -47,7 +47,7 @@ export const removeVideo = async (req: AuthRequest, res: Response) => {
 
         return responseSuccess(res, result);
     } catch (err: any) {
-        return responseError(res, err.message, 400, err);
+        return responseError(res, err);
     }
 };
 
@@ -56,7 +56,7 @@ export const getPlaylists = async (req: AuthRequest, res: Response) => {
         const playlists = await playlistService.getPlaylists(req.user!.id);
         return responseSuccess(res, playlists);
     } catch (err: any) {
-        return responseError(res, err.message, 400, err);
+        return responseError(res, err);
     }
 };
 
@@ -67,6 +67,6 @@ export const deletePlaylist = async (req: AuthRequest, res: Response) => {
 
         return responseSuccess(res, result);
     } catch (err: any) {
-        return responseError(res, err.message, 400, err);
+        return responseError(res, err);
     }
 };
