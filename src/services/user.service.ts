@@ -1,12 +1,12 @@
 import bcrypt from "bcrypt";
-import { UserApp } from "../models/user.model";
+import { FindOptions } from "sequelize";
 import {
   formatPaginationResult,
   getPaginationOptions,
   PaginationParams,
   PaginationResult,
 } from "../helpers/pagination.helper";
-import { FindOptions } from "sequelize";
+import { UserApp } from "../models/user.model";
 
 export class UserService {
   private saltRounds = 10;
@@ -18,12 +18,7 @@ export class UserService {
 
     const { rows, count } = await UserApp.findAndCountAll(options);
 
-    return formatPaginationResult(
-      rows,
-      count,
-      params.page || 1,
-      params.limit || 10,
-    );
+    return formatPaginationResult(rows, count, params.page || 1, params.limit || 10);
   }
 
   async getById(id: number | string) {

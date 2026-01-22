@@ -17,5 +17,8 @@ const env_1 = require("./config/env");
     }
     catch (error) {
         console.error("Server error:", error);
+        process.exit(1);
     }
-})();
+})().catch((err) => {
+    console.error("Server error:", err);
+});

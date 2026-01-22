@@ -1,12 +1,7 @@
-import {
-  DataTypes,
-  Model,
-  BelongsToManyAddAssociationsMixin,
-  BelongsToManySetAssociationsMixin,
-} from "sequelize";
+import { BelongsToManySetAssociationsMixin, DataTypes, Model } from "sequelize";
 import { sequelize } from "../config/sequelize";
-import { Tag } from "./tag.model";
 import { Category } from "./category.model";
+import { Tag } from "./tag.model";
 
 export class UrlVideo extends Model {
   declare id: number;

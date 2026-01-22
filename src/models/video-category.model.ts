@@ -1,7 +1,5 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../config/sequelize";
-import { UrlVideo } from "./url-video.model";
-import { Category } from "./category.model";
 
 export class VideoCategory extends Model {
   declare id: number;

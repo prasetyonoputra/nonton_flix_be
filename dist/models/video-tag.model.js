@@ -8,5 +8,6 @@ class VideoTag extends sequelize_1.Model {
 exports.VideoTag = VideoTag;
 VideoTag.init({
     id: { type: sequelize_1.DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
-    name: { type: sequelize_1.DataTypes.STRING, allowNull: false, unique: true },
+    tagId: { type: sequelize_1.DataTypes.INTEGER, allowNull: false },
+    urlVideoId: { type: sequelize_1.DataTypes.INTEGER, allowNull: false },
 }, { sequelize: sequelize_2.sequelize, tableName: "VideoTag", timestamps: true });

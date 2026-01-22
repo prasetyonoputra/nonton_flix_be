@@ -31,12 +31,7 @@ export class UrlVideoService {
 
     const { rows, count } = await UrlVideo.findAndCountAll(options);
 
-    return formatPaginationResult(
-      rows,
-      count,
-      params.page || 1,
-      params.limit || 10,
-    );
+    return formatPaginationResult(rows, count, params.page || 1, params.limit || 10);
   }
 
   async getById(id: number | string) {

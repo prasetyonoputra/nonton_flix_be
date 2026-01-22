@@ -2,8 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.errorMiddleware = errorMiddleware;
 const sequelize_1 = require("sequelize");
-function errorMiddleware(err, req, res, next) {
-    // Sequelize validation error
+function errorMiddleware(err, req, res) {
     if (err instanceof sequelize_1.ValidationError) {
         const errors = {};
         err.errors.forEach((e) => {
@@ -17,7 +16,6 @@ function errorMiddleware(err, req, res, next) {
             errors,
         });
     }
-    // Default error
     console.error(err);
     return res.status(500).json({
         success: false,

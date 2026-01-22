@@ -1,13 +1,7 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import { ValidationError } from "sequelize";
 
-export function errorMiddleware(
-  err: any,
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
-  // Sequelize validation error
+export function errorMiddleware(err: any, req: Request, res: Response) {
   if (err instanceof ValidationError) {
     const errors: Record<string, string> = {};
 
@@ -24,7 +18,6 @@ export function errorMiddleware(
     });
   }
 
-  // Default error
   console.error(err);
 
   return res.status(500).json({

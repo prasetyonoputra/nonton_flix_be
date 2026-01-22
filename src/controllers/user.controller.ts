@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
+import { PaginationParams } from "../helpers/pagination.helper";
 import { error, notFound, success } from "../helpers/response.helper";
 import { UserService } from "../services/user.service";
-import { PaginationParams } from "../helpers/pagination.helper";
 
 export class UserController {
   private service = new UserService();
@@ -36,7 +36,7 @@ export class UserController {
 
   create = async (req: Request, res: Response) => {
     try {
-      const { email, password, fullName, role } = req.body;
+      const { email, password } = req.body;
 
       if (!email || !password) {
         return error(res, "Email and password are required", 400);

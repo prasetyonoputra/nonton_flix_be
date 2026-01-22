@@ -14,11 +14,6 @@ router.post("/", authMiddleware, roleMiddleware(["SUPERADMIN"]), controller.crea
 
 router.put("/:id", authMiddleware, controller.update);
 
-router.delete(
-  "/:id",
-  authMiddleware,
-  roleMiddleware(["SUPERADMIN"]),
-  controller.delete,
-);
+router.delete("/:id", authMiddleware, roleMiddleware(["SUPERADMIN"]), controller.delete);
 
 export default router;

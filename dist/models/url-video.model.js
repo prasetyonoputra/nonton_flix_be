@@ -7,26 +7,20 @@ class UrlVideo extends sequelize_1.Model {
 }
 exports.UrlVideo = UrlVideo;
 UrlVideo.init({
-    id: {
-        type: sequelize_1.DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-    },
-    title: {
-        type: sequelize_1.DataTypes.STRING,
-        allowNull: false,
-    },
-    description: {
-        type: sequelize_1.DataTypes.TEXT,
-        allowNull: true,
-    },
-    url_video: {
-        type: sequelize_1.DataTypes.STRING,
-        allowNull: false,
-    },
+    id: { type: sequelize_1.DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    title: { type: sequelize_1.DataTypes.STRING, allowNull: false },
+    description: { type: sequelize_1.DataTypes.TEXT, allowNull: true },
+    url: { type: sequelize_1.DataTypes.STRING, allowNull: false },
     thumbnail: {
         type: sequelize_1.DataTypes.STRING,
         allowNull: false,
+        get() {
+            const rawValue = this.getDataValue("thumbnail");
+            if (!rawValue)
+                return null;
+            const baseUrl = process.env.BASE_URL || "http://localhost:5000";
+            return `${baseUrl}/uploads/thumbnails/${rawValue}`;
+        },
     },
 }, {
     sequelize: sequelize_2.sequelize,

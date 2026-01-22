@@ -40,10 +40,8 @@ export class UrlVideoController {
 
       if (req.file) data.thumbnail = req.file.filename;
 
-      if (typeof data.categoryIds === "string")
-        data.categoryIds = JSON.parse(data.categoryIds);
-      if (typeof data.tagIds === "string")
-        data.tagIds = JSON.parse(data.tagIds);
+      if (typeof data.categoryIds === "string") data.categoryIds = JSON.parse(data.categoryIds);
+      if (typeof data.tagIds === "string") data.tagIds = JSON.parse(data.tagIds);
 
       const result = await this.service.create(data);
       return success(res, result, "Video created successfully", 201);
@@ -59,10 +57,8 @@ export class UrlVideoController {
 
       if (req.file) data.thumbnail = req.file.filename;
 
-      if (typeof data.categoryIds === "string")
-        data.categoryIds = JSON.parse(data.categoryIds);
-      if (typeof data.tagIds === "string")
-        data.tagIds = JSON.parse(data.tagIds);
+      if (typeof data.categoryIds === "string") data.categoryIds = JSON.parse(data.categoryIds);
+      if (typeof data.tagIds === "string") data.tagIds = JSON.parse(data.tagIds);
 
       const result = await this.service.update(id, data);
       if (!result) return notFound(res);
