@@ -1,13 +1,15 @@
 import express from "express";
-import cors from "cors";
-import { registerRoutes } from "./routes/index.route";
+import routes from "./routes";
+import { errorMiddleware } from "./middlewares/error.middleware";
+import path from "path";
+import "./models/index.model";
 
 const app = express();
 
-app.use(cors());
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 app.use(express.json());
-app.use("/uploads", express.static("uploads"));
+app.use("/api", routes);
 
-registerRoutes(app);
+app.use(errorMiddleware);
 
 export default app;

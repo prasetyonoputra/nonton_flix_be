@@ -1,155 +1,71 @@
 import bcrypt from "bcrypt";
-import { PaginationParamsDto } from "../dto/pagination.dto";
-import { CreateUserDto, UpdateUserDto } from "../dto/user.dto";
-import prisma from "../utils/prisma";
-import { User } from "@prisma/client";
+import { UserApp } from "../models/user.model";
+import {
+  formatPaginationResult,
+  getPaginationOptions,
+  PaginationParams,
+  PaginationResult,
+} from "../helpers/pagination.helper";
+import { FindOptions } from "sequelize";
 
-class NotFoundError extends Error {}
-class BadRequestError extends Error {}
+export class UserService {
+  private saltRounds = 10;
 
-export const createUser = async (data: CreateUserDto) => {
-    const existingUser = await prisma.user.findUnique({
-        where: { email: data.email },
+  async getAll(params: PaginationParams): Promise<PaginationResult<UserApp>> {
+    const options: FindOptions = getPaginationOptions(params);
+
+    options.attributes = { exclude: ["password"] };
+
+    const { rows, count } = await UserApp.findAndCountAll(options);
+
+    return formatPaginationResult(
+      rows,
+      count,
+      params.page || 1,
+      params.limit || 10,
+    );
+  }
+
+  async getById(id: number | string) {
+    return await UserApp.findByPk(id, {
+      attributes: { exclude: ["password"] },
     });
-    if (existingUser) throw new BadRequestError("Email already registered");
+  }
 
-    const role = await prisma.role.findUnique({ where: { id: data.roleId } });
-    if (!role) throw new NotFoundError("Role not found");
-
-    const hashedPassword = await bcrypt.hash(data.password, 10);
-
-    const savedUser = await prisma.$transaction(async (tx) => {
-        const user = await tx.user.create({
-            data: {
-                name: data.name,
-                email: data.email,
-                password: hashedPassword,
-                roleId: role.id,
-            },
-        });
-
-        await tx.profile.create({
-            data: {
-                userId: user.id,
-                bio: "",
-                avatarUrl: "",
-            },
-        });
-
-        await tx.accountSetting.create({
-            data: {
-                userId: user.id,
-                theme: "light",
-                language: "id",
-                privacy: "public",
-            },
-        });
-
-        return user;
-    });
-
-    const userWithRole = await prisma.user.findUnique({
-        where: { id: savedUser.id },
-        select: {
-            id: true,
-            name: true,
-            email: true,
-            role: { select: { name: true } },
-        },
-    });
-
-    return userWithRole;
-};
-
-export const getUsers = async (paginationParams: PaginationParamsDto) => {
-    const skip = (paginationParams.page - 1) * paginationParams.limit;
-    const order = paginationParams.sort
-        ? { [paginationParams.sort]: paginationParams.dir }
-        : undefined;
-
-    const [data, total] = await Promise.all([
-        prisma.user.findMany({
-            skip,
-            take: paginationParams.limit,
-            orderBy: order,
-            include: {
-                role: { select: { name: true } },
-                profile: true,
-                accountSetting: true,
-            },
-        }),
-        prisma.user.count(),
-    ]);
-
-    return {
-        data,
-        pagination: {
-            total,
-            page: paginationParams.page,
-            pageSize: paginationParams.limit,
-            totalPage: Math.ceil(total / paginationParams.limit),
-        },
-    };
-};
-
-export const getUserById = async (id: number): Promise<User> => {
-    const user = await prisma.user.findUnique({
-        where: { id },
-        include: {
-            role: { select: { name: true } },
-            profile: true,
-            accountSetting: true,
-        },
-    });
-
-    if (!user) throw new NotFoundError("User not found");
-    return user;
-};
-
-export const updateUser = async (id: number, data: UpdateUserDto) => {
-    const existingUser = await getUserById(id);
-
-    if (data.email && data.email !== existingUser.email) {
-        const emailExists = await prisma.user.findUnique({
-            where: { email: data.email },
-        });
-        if (emailExists) throw new BadRequestError("Email already registered");
+  async create(data: any) {
+    if (data.password) {
+      data.password = await bcrypt.hash(data.password, this.saltRounds);
     }
 
-    if (data.roleId && data.roleId !== existingUser.roleId) {
-        const role = await prisma.role.findUnique({
-            where: { id: data.roleId },
-        });
-        if (!role) throw new NotFoundError("Role not found");
+    const user = await UserApp.create(data);
+
+    const result = user.toJSON();
+    delete result.password;
+    return result;
+  }
+
+  async update(id: number | string, data: any) {
+    const user = await UserApp.findByPk(id);
+    if (!user) return null;
+
+    if (data.password) {
+      data.password = await bcrypt.hash(data.password, this.saltRounds);
     }
 
-    const updatedUser = await prisma.user.update({
-        where: { id },
-        data: {
-            ...data,
-        },
-        include: {
-            role: { select: { name: true } },
-            profile: true,
-            accountSetting: true,
-        },
-    });
+    await user.update(data);
 
-    return updatedUser;
-};
+    return this.getById(id);
+  }
 
-export const deleteUser = async (id: number) => {
-    const user = await getUserById(id);
+  async delete(id: number | string): Promise<boolean> {
+    const user = await UserApp.findByPk(id);
+    if (!user) return false;
 
-    const deletedUser = await prisma.$transaction(async (tx) => {
-        await tx.profile.delete({ where: { userId: user.id } });
-        await tx.accountSetting.delete({ where: { userId: user.id } });
-        return tx.user.delete({ where: { id: user.id } });
-    });
+    await user.destroy();
+    return true;
+  }
 
-    return {
-        id: deletedUser.id,
-        name: deletedUser.name,
-        email: deletedUser.email,
-    };
-};
+  async findByEmail(email: string) {
+    return await UserApp.findOne({ where: { email } });
+  }
+}

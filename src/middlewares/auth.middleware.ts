@@ -1,41 +1,14 @@
-import { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken";
-
-export interface AuthRequest extends Request {
-    user?: {
-        id: number;
-        email: string;
-        role: string;
-        roleId: number;
-    };
-    file?: Express.Multer.File;
-    files?:
-        | { [fieldname: string]: Express.Multer.File[] }
-        | Express.Multer.File[];
-}
+import { Request, Response, NextFunction } from "express";
+import { verifyToken } from "../utils/jwt.util";
 
 export const authMiddleware = (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction,
+  req: Request,
+  res: Response,
+  next: NextFunction,
 ) => {
-    const authHeader = req.headers.authorization;
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.status(401).json({ message: "Unauthorized" });
 
-    if (!authHeader?.startsWith("Bearer ")) {
-        return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    const token = authHeader.split(" ")[1];
-
-    try {
-        const decoded = jwt.verify(
-            token,
-            process.env.JWT_SECRET!,
-        ) as AuthRequest["user"];
-
-        req.user = decoded;
-        next();
-    } catch {
-        return res.status(401).json({ message: "Invalid token" });
-    }
+  req.user = verifyToken(token);
+  next();
 };

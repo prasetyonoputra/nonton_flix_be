@@ -1,12 +1,18 @@
-import "dotenv/config";
-if (!process.env.DATABASE_URL) {
-    throw new Error("DATABASE_URL is missing");
-}
-
 import app from "./app";
+import { sequelize } from "./config/sequelize";
+import { env } from "./config/env";
 
-const PORT = process.env.PORT || 5000;
+(async () => {
+  try {
+    await sequelize.authenticate();
+    console.log("DB connected");
 
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-});
+    await sequelize.sync({ alter: true });
+
+    app.listen(env.PORT, () => {
+      console.log(`Server running on port ${env.PORT}`);
+    });
+  } catch (error) {
+    console.error("Server error:", error);
+  }
+})();

@@ -1,0 +1,16 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const url_video_controller_1 = require("../controllers/url-video.controller");
+const url_video_service_1 = require("../services/url-video.service");
+const auth_middleware_1 = require("../middlewares/auth.middleware");
+const role_middleware_1 = require("../middlewares/role.middleware");
+const url_video_repository_1 = require("../repositories/url-video.repository");
+const router = (0, express_1.Router)();
+const controller = new url_video_controller_1.UrlVideoController(new url_video_service_1.UrlVideoService(new url_video_repository_1.UrlVideoRepository()));
+router.get("/", controller.getAll);
+router.get("/:id", controller.getById);
+router.post("/", auth_middleware_1.authMiddleware, (0, role_middleware_1.roleMiddleware)(["SUPERADMIN"]), controller.create);
+router.put("/:id", auth_middleware_1.authMiddleware, (0, role_middleware_1.roleMiddleware)(["SUPERADMIN"]), controller.update);
+router.delete("/:id", auth_middleware_1.authMiddleware, (0, role_middleware_1.roleMiddleware)(["SUPERADMIN"]), controller.delete);
+exports.default = router;
